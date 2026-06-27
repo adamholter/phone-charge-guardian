@@ -1,0 +1,22 @@
+{
+  "name": "phone-charge-guardian",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Tiny cross-platform local watcher for flaky wired phone USB/charging connections.",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js",
+    "install:mac": "./scripts/install-launch-agent.sh",
+    "uninstall:mac": "./scripts/uninstall-launch-agent.sh",
+    "install:linux": "./scripts/install-systemd-user.sh",
+    "uninstall:linux": "./scripts/uninstall-systemd-user.sh"
+  },
+  "bin": {
+    "phone-charge-guardian": "bin/phone-charge-guardian.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

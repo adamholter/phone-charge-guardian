@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Phone Charge Guardian</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="app" id="app" data-status="unknown">
+      <section class="card" aria-live="polite">
+        <header class="header">
+          <div>
+            <p class="label">Phone Charge Guardian</p>
+            <h1 id="statusText">Checking</h1>
+          </div>
+          <span class="dot" aria-hidden="true"></span>
+        </header>
+
+        <p class="summary" id="summary">Waiting for the first connection sample.</p>
+
+        <dl class="facts">
+          <div>
+            <dt>Device</dt>
+            <dd id="deviceText">Unknown</dd>
+          </div>
+          <div>
+            <dt>Last Seen</dt>
+            <dd id="lastSeenText">Never</dd>
+          </div>
+          <div>
+            <dt>Retries</dt>
+            <dd id="retryText">0 / 2</dd>
+          </div>
+        </dl>
+
+        <button class="button" id="recoverButton" type="button">Try Recovery</button>
+
+        <details class="logs" id="logsDetails">
+          <summary>
+            <span>Logs and details</span>
+            <span class="summary-meta" id="logCount">0 events</span>
+          </summary>
+
+          <dl class="facts detail-facts">
+            <div>
+              <dt>USB Phones</dt>
+              <dd id="usbCount">0</dd>
+            </div>
+            <div>
+              <dt>ADB Wired</dt>
+              <dd id="adbWired">0</dd>
+            </div>
+            <div>
+              <dt>ADB Wireless</dt>
+              <dd id="adbWireless">0</dd>
+            </div>
+            <div>
+              <dt>Poll</dt>
+              <dd id="pollText">Unknown</dd>
+            </div>
+            <div>
+              <dt>Platform</dt>
+              <dd id="platformText">Unknown</dd>
+            </div>
+            <div>
+              <dt>Last Recovery</dt>
+              <dd id="lastRecoveryText">None</dd>
+            </div>
+          </dl>
+
+          <ol class="event-list" id="eventList"></ol>
+        </details>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

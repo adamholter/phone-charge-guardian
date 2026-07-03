@@ -1,5 +1,7 @@
 import { execFile } from 'node:child_process';
 
+import { parseAdbDevices } from './usb.js';
+
 export function buildRecoveryPlan({
   adbPath = 'adb',
   attempt = 0,
@@ -47,7 +49,7 @@ export function buildRecoveryPlan({
   return plan;
 }
 
-export async function runRecoveryPlan(plan) {
+export async function runRecoveryPlan(plan, options = {}) {
   const steps = [];
 
   for (const step of plan) {
@@ -55,12 +57,51 @@ export async function runRecoveryPlan(plan) {
     steps.push(result);
   }
 
-  const failures = steps.filter((step) => !step.ok);
+  return evaluateRecoverySteps(steps, options);
+}
+
+export function evaluateRecoverySteps(steps, { wiredSerial = null } = {}) {
+  const failed = steps.find((step) => !step.ok);
+  if (failed) {
+    return {
+      ok: false,
+      steps,
+      summary: `${failed.label} failed: ${failed.stderr || failed.error || 'unknown error'}`
+    };
+  }
+
+  const lastAdbList = findLastAdbDeviceList(steps);
+  if (!lastAdbList) {
+    return {
+      ok: true,
+      steps,
+      summary: steps.map((step) => step.label).join(' -> ')
+    };
+  }
+
+  if (!hasRecoveredWiredAdb(lastAdbList.stdout, wiredSerial)) {
+    const target = wiredSerial ? ` ${wiredSerial}` : '';
+    return {
+      ok: false,
+      steps,
+      summary: `No wired ADB device${target} found after recovery`
+    };
+  }
+
   return {
-    ok: failures.length === 0,
+    ok: true,
     steps,
-    summary: summarizeSteps(steps)
+    summary: summarizeAdbDevices(lastAdbList.stdout)
   };
+}
+
+export function hasRecoveredWiredAdb(output, wiredSerial = null) {
+  return parseAdbDevices(output).some((device) => {
+    if (!device.isWired || device.state !== 'device') {
+      return false;
+    }
+    return wiredSerial ? device.serial === wiredSerial : true;
+  });
 }
 
 function runStep(step) {
@@ -94,16 +135,10 @@ function runStep(step) {
   });
 }
 
-function summarizeSteps(steps) {
-  const failed = steps.find((step) => !step.ok);
-  if (failed) {
-    return `${failed.label} failed: ${failed.stderr || failed.error || 'unknown error'}`;
-  }
+function findLastAdbDeviceList(steps) {
+  return [...steps].reverse().find((step) => step.args?.[0] === 'devices');
+}
 
-  const lastAdbList = [...steps].reverse().find((step) => step.args?.[0] === 'devices');
-  if (lastAdbList?.stdout) {
-    return lastAdbList.stdout.split(/\r?\n/).filter(Boolean).slice(-2).join(' | ');
-  }
-
-  return steps.map((step) => step.label).join(' -> ');
+function summarizeAdbDevices(output) {
+  return String(output || '').split(/\r?\n/).filter(Boolean).slice(-2).join(' | ');
 }

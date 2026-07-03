@@ -204,7 +204,7 @@ async function recover(reason) {
   });
   broadcastStatus('status');
 
-  const result = await runRecoveryPlan(plan);
+  const result = await runRecoveryPlan(plan, { wiredSerial });
   tracker.noteRecoveryAttempt(result, Date.now());
   lastMonitor = tracker.snapshot({ sample: lastMonitor.sample });
 
